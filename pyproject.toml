@@ -1,0 +1,88 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deepexploit2"
+version = "2.0.0-alpha.0"
+description = "DeepExploit 2: A research platform for intelligent security decision-making"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+keywords = ["security", "research", "reinforcement-learning", "decision-making"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+dependencies = [
+    "pydantic>=2.5",
+    "sqlalchemy>=2.0",
+    "structlog>=24.0",
+    "pyyaml>=6.0",
+    "numpy>=1.26",
+    "rich>=13.0",
+    "click>=8.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "mypy>=1.8",
+    "ruff>=0.3",
+    "types-PyYAML>=6.0",
+    "test-external-plugin @ file:tests/fixtures/test_plugin_package",
+]
+
+[project.scripts]
+deepexploit2 = "deepexploit2.cli:main"
+
+# -----------------------------------------------------------------------
+# Built-in plugin entry points
+# All plugins — built-in and external — register under this group.
+# External plugins add their own entry points in their own pyproject.toml.
+# -----------------------------------------------------------------------
+[project.entry-points."deepexploit2.plugins"]
+scope_policy           = "deepexploit2_builtins.scope_policy.plugin:ScopePolicyPlugin"
+null_adapter           = "deepexploit2_builtins.null_adapter.plugin:NullAdapterPlugin"
+random_algorithm       = "deepexploit2_builtins.random_algorithm.plugin:RandomAlgorithmPlugin"
+rule_algorithm         = "deepexploit2_builtins.rule_algorithm.plugin:RuleAlgorithmPlugin"
+simple_encoder         = "deepexploit2_builtins.simple_encoder.plugin:SimpleEncoderPlugin"
+simulated_observation  = "deepexploit2_builtins.simulated_observation.plugin:SimulatedObservationPlugin"
+default_reward         = "deepexploit2_builtins.default_reward.plugin:DefaultRewardPlugin"
+sqlite_memory          = "deepexploit2_builtins.sqlite_memory.plugin:SqliteMemoryPlugin"
+default_metrics        = "deepexploit2_builtins.default_metrics.plugin:DefaultMetricsPlugin"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["deepexploit2*", "deepexploit2_builtins*"]
+
+# -----------------------------------------------------------------------
+# Tool configuration
+# -----------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "ANN"]
+ignore = ["ANN101", "ANN102"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+log_cli = false
+
+[tool.coverage.run]
+source = ["deepexploit2", "deepexploit2_builtins"]
+omit = ["tests/*"]
